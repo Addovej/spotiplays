@@ -1,0 +1,20 @@
+.idea/
+.vscode/
+.env
+spotifyd.conf
+logs
+media
+
+venv
+
+# byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache
+
+# mypy
+.mypy_cache/
+
+# C extensions
+*.so
