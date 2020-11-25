@@ -1,6 +1,4 @@
 [global]
-username = ""
-password = ""
 backend = "alsa"
 device = "default"
 mixer = "PCM"

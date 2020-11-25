@@ -32,11 +32,13 @@ RUN apk -U --no-cache add \
     && apk add --no-cache --virtual .build-deps \
        gcc \
        build-base \
+       libffi-dev \
+       openssl-dev \
     && pip --no-cache-dir install -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt \
     && apk del --no-cache .build-deps
 
 COPY --from=build /root/target/release/spotifyd /usr/bin/spotifyd
 
-ADD ./src /app
-WORKDIR /app
+ADD ./src /opt/project
+WORKDIR /opt/project

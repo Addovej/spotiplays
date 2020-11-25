@@ -3,6 +3,10 @@ import re
 from logging import getLogger
 from subprocess import PIPE, STDOUT
 
+__all__ = (
+    'spotifyd',
+)
+
 logger = getLogger('console')
 
 

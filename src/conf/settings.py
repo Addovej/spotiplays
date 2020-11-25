@@ -1,17 +1,23 @@
-import secrets
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from cryptography.fernet import Fernet
 from pydantic import BaseSettings, validator
+
+__all__ = (
+    'Settings',
+)
 
 
 class Settings(BaseSettings):
     API_ROOT: Path
-    BASE_DIR: Path = Path(__file__).parent.parent.parent
+    BASE_DIR: Path = Path(__file__).parent.parent
     ENVIRONMENT: str = 'LOCAL'
     LOGS_DIR: Path = None
     PORT: int = 8010
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    SECRET_KEY: str = Fernet.generate_key()
+
+    DATABASE_URL: str = None
 
     class Config:
         case_sensitive = True
@@ -28,3 +34,9 @@ class Settings(BaseSettings):
             log_dir = values['BASE_DIR'].joinpath('logs')
         log_dir.mkdir(parents=True, exist_ok=True)
         return log_dir
+
+    @validator('DATABASE_URL', pre=True)
+    def create_db_url(
+            cls, v: Optional[str], values: Dict[str, Any]
+    ) -> str:
+        return f'sqlite:///{values["BASE_DIR"]}/spotiplays.db'

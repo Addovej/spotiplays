@@ -1,1 +1,5 @@
-from .exceptions import LogHTTPException, log_custom_http_exceptions_handler
+from .exceptions import (
+    LogHTTPException,
+    NotFoundException,
+    log_custom_http_exceptions_handler
+)

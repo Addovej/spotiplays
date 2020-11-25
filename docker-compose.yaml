@@ -9,15 +9,14 @@ services:
     env_file:
       - .env
     volumes:
-      - ./src:/app
-      - ./spotifyd.conf:/etc/spotifyd.conf:ro
+      - ./src:/opt/project
+      - ./spotifyd/spotifyd.conf:/etc/spotifyd.conf:ro
     ports:
       - 8000:8010
     command: uvicorn --port 8010 --host 0.0.0.0 --loop uvloop main:app
 
 #  homeassistant:
-#    # Uncomment rasp and comment other to use on your raspberry
-##    image: homeassistant/raspberrypi3-homeassistant:stable
+#    # Use homeassistant/raspberrypi3-homeassistant:stable image for raspberry Pi
 #    image: homeassistant/home-assistant:stable
 #    volumes:
 #      - ./hass/:/config/

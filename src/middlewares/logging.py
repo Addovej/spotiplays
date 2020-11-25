@@ -5,8 +5,14 @@ from traceback import TracebackException
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.status import (HTTP_400_BAD_REQUEST,
-                              HTTP_500_INTERNAL_SERVER_ERROR)
+from starlette.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR
+)
+
+__all__ = (
+    'LoggingErrorMiddleware',
+)
 
 RequestResponseEndpoint = typing.Callable[
     [Request], typing.Awaitable[Response]

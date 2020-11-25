@@ -1,18 +1,31 @@
 from logging import getLogger
 from typing import Dict, Union
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from starlette.status import HTTP_400_BAD_REQUEST
+
+__all__ = (
+    'NotFoundException',
+    'LogHTTPException',
+    'log_custom_http_exceptions_handler',
+)
 
 logger = getLogger('request.4XX')
+
+
+class NotFoundException(HTTPException):
+    def __init__(self, detail: Union[Dict, str] = None) -> None:
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=detail
+        )
 
 
 class LogHTTPException(HTTPException):
     def __init__(
             self,
-            status: int = HTTP_400_BAD_REQUEST,
+            status: int = status.HTTP_400_BAD_REQUEST,
             detail: Union[Dict, str] = None
     ) -> None:
         super().__init__(
