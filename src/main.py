@@ -1,13 +1,14 @@
 import logging.config
 
-import sqlalchemy as sa
 import uvicorn
 from fastapi import APIRouter, FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from api import router as api_router
 from conf import settings
 from conf.logging import get_logging
-from database import db, metadata
+from database import db
 from errors import LogHTTPException, log_custom_http_exceptions_handler
 from middlewares import LoggingErrorMiddleware
 from services.spotifyd import spotifyd
@@ -15,11 +16,6 @@ from services.spotifyd import spotifyd
 logging.config.dictConfig(
     get_logging(settings.LOGS_DIR)
 )
-
-engine = sa.create_engine(
-    settings.DATABASE_URL, connect_args={'check_same_thread': False}
-)
-metadata.create_all(engine)
 
 params = dict(
     title='Spotiplays',
@@ -47,6 +43,20 @@ app.add_middleware(LoggingErrorMiddleware)
 api = APIRouter()
 api.include_router(api_router)
 app.include_router(api, prefix=str(settings.API_ROOT))
+
+app.mount(
+    '/assets',
+    StaticFiles(directory=f'{settings.BASE_DIR}/assets'),
+    name='assets'
+)
+
+
+@app.get('/')
+async def root():
+    with open(f'{settings.BASE_DIR}/index.html', 'r') as file:
+        data = file.read()
+
+    return HTMLResponse(data)
 
 
 @app.on_event('startup')

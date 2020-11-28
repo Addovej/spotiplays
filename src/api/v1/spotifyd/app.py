@@ -36,7 +36,7 @@ async def accounts(account: CreateAccountSchema):
     response_model=GetListAccountSchema
 )
 async def accounts():
-    res = await Account.get_list()
+    res = await Account.get_list(limit=50)
 
     return {
         'items': [GetAccountSchema.parse_obj(item).dict() for item in res]
@@ -44,7 +44,7 @@ async def accounts():
 
 
 @router.get(
-    'accounts/{account_id}',
+    '/accounts/{account_id}',
     summary='Get account by ID',
     response_model=GetAccountSchema
 )
@@ -59,7 +59,7 @@ async def accounts(account_id: int):
 
 
 @router.put(
-    'accounts/{account_id}',
+    '/accounts/{account_id}',
     summary='Update account by ID'
 )
 async def accounts(account_id: int, account: UpdateAccountSchema):
@@ -69,11 +69,11 @@ async def accounts(account_id: int, account: UpdateAccountSchema):
             f'Not found account with {account_id!r} ID'
         )
 
-    return {'id': res}
+    return {'result': res}
 
 
 @router.delete(
-    'accounts/{account_id}',
+    '/accounts/{account_id}',
     summary='Delete account by ID'
 )
 async def accounts(account_id: int):
@@ -83,7 +83,7 @@ async def accounts(account_id: int):
             f'Not found account with {account_id!r} ID'
         )
 
-    return {'id': res}
+    return {'result': res}
 
 
 # Spotifyd handle
