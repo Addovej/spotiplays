@@ -4,7 +4,7 @@ export default class ApiHandler {
         window.ApiHandler = this;  // For debugging purposes
     }
 
-    async request(method, url, data = {}) {
+    async #_request(method, url, data = {}) {
         return new Promise((resolve, reject) => {
             let xhr = new XMLHttpRequest();
             xhr.open(method, url, true);
@@ -32,19 +32,14 @@ export default class ApiHandler {
     }
 
     async get_accounts() {
-        let response = await fetch(`${this._base}/api/v1/spotifyd/accounts`);
-
-        if (response.ok) {
-            let json = await response.json();
-            console.log('GET /api/v1/spotifyd/accounts:', json)
-            return json
-        } else {
-            console.log(`HTTP error: ${response.status}`);
-        }
+        return await this.#_request(
+            'GET',
+            `${this._base}/api/v1/spotifyd/accounts`
+        )
     }
 
     async add_account(data) {
-        return await this.request(
+        return await this.#_request(
             'POST',
             `${this._base}/api/v1/spotifyd/accounts`,
             data
@@ -53,7 +48,7 @@ export default class ApiHandler {
     }
 
     async edit_account(id, data) {
-        return await this.request(
+        return await this.#_request(
             'PUT',
             `${this._base}/api/v1/spotifyd/accounts/${id}`,
             data
@@ -61,7 +56,7 @@ export default class ApiHandler {
     }
 
     async remove_account(id) {
-        return await this.request(
+        return await this.#_request(
             'DELETE',
             `${this._base}/api/v1/spotifyd/accounts/${id}`
         );

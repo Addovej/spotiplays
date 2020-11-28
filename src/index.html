@@ -9,6 +9,7 @@
 </head>
 <body>
 <ul id="accounts"></ul>
+<div class="empty"></div>
 <button id="add-new-account">Add new</button>
 
 <div id="create-account" class="modal">
@@ -18,10 +19,25 @@
             <h2 id="create-title">Add a new Spotify account</h2>
         </div>
         <div class="modal-body">
-            <label for="create-name">Account name: </label><input id="create-name" type="text" required>
-            <label for="create-username">Username: </label><input id="create-username" type="text" required>
-            <label for="create-password">Password: </label><input id="create-password" type="password" required>
-            <button id="create-save">Save</button><button id="create-cancel">Cancel</button>
+            <div class="modal-body-inputs">
+                <div>
+                    <label for="create-name">Account name: </label>
+                    <input id="create-name" type="text" required>
+                </div>
+                <div>
+                    <label for="create-username">Username: </label>
+                    <input id="create-username" type="text" required>
+                </div>
+                <div>
+                    <label for="create-password">Password: </label>
+                    <input id="create-password" type="password" required>
+                </div>
+
+            </div>
+            <div class="modal-body-buttons">
+                <button id="create-save" class="btn-left">Save</button>
+                <button id="create-cancel" class="btn-right">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
@@ -33,10 +49,24 @@
             <h2 id="edit-title"></h2>
         </div>
         <div class="modal-body">
-            <label for="edit-name">Account name: </label><input id="edit-name" type="text">
-            <label for="edit-username">Username: </label><input id="edit-username" type="text">
-            <label for="edit-password">Password: </label><input id="edit-password" type="password" placeholder="New password">
-            <button id="edit-save">Save</button><button id="edit-cancel">Cancel</button>
+            <div class="modal-body-inputs">
+                <div>
+                    <label for="edit-name">Account name: </label>
+                    <input id="edit-name" type="text">
+                </div>
+                <div>
+                    <label for="edit-username">Username: </label>
+                    <input id="edit-username" type="text">
+                </div>
+                <div>
+                    <label for="edit-password">Password: </label>
+                    <input id="edit-password" type="password" placeholder="New password">
+                </div>
+            </div>
+            <div class="modal-body-buttons">
+                <button id="edit-save" class="btn-left">Save</button>
+                <button id="edit-cancel" class="btn-right">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
@@ -48,7 +78,10 @@
             <h2 id="remove-title"></h2>
         </div>
         <div class="modal-body">
-            <button id="remove-confirm">Yes</button><button id="remove-cancel">No</button>
+            <div class="modal-body-buttons">
+                <button id="remove-confirm" class="btn-left">Yes</button>
+                <button id="remove-cancel" class="btn-right">No</button>
+            </div>
         </div>
     </div>
 </div>

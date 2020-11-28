@@ -1,4 +1,4 @@
-import ApiHandler from "./api.js";
+import ApiHandler from './api.js';
 
 const api = new ApiHandler();
 
@@ -22,16 +22,34 @@ const list_event = new ListEvent();
 
 export default class AppUI {
     constructor() {
-        window.AppUI = AppUI
+        window.AppUI = AppUI;
 
-        this.list = get_list();
+        // Accounts list
+        this.list = get_list_accounts();
 
-        this.create = get_create();
-        this.edit = get_edit();
-        this.remove = get_remove();
+        // Modals for managing
+        this.create = get_create_modal();
+        this.edit = get_edit_modal();
+        this.remove = get_remove_modal();
 
-        this._initialize_clicks();
-        this._initialize_events().then();
+        this.#_initialize_clicks();
+        this.#_initialize_events();
+    }
+
+    async init_data() {
+        try {
+            let accounts = await api.get_accounts();
+            if (accounts.items.length !== 0) {
+                for (const acc of Object.values(accounts.items)) {
+                    await this.append_item(acc);
+                }
+            } else {
+                let empty = document.querySelector('body .empty');
+                empty.innerHTML = '<p>There not any accounts</p>';
+            }
+        } catch (e) {
+            console.log('Error with init_data: ', e)
+        }
     }
 
     async create_item_list(acc) {
@@ -67,16 +85,43 @@ export default class AppUI {
 
     async create_item() {
         this.create.buttons.save.onclick = () => {
-            this._create_saved(
+            this.#_create_saved(
                 this.create.inputs.name,
                 this.create.inputs.username,
                 this.create.inputs.password
             );
         }
-        this._open_create();
+        this.#_open_create();
     }
 
-    async _create_saved(name, username, password) {
+    async edit_item(acc) {
+        this.edit.title.innerHTML = `Editing '${acc.name}' (login=${acc.username}) account.`;
+
+        this.edit.inputs.name.value = acc.name;
+        this.edit.inputs.username.value = acc.username;
+
+        this.edit.buttons.save.onclick = () => {
+            this.#_edit_saved(
+                acc,
+                this.edit.inputs.name,
+                this.edit.inputs.username,
+                this.edit.inputs.password
+            );
+        }
+        this.#_open_edit();
+    }
+
+    async remove_item(acc) {
+        this.remove.title.innerText = `Remove '${acc.name}' (login=${acc.username}) account?`;
+        this.remove.buttons.confirm.onclick = () => {
+            this.#_remove_confirmed(acc.id);
+        };
+        this.#_open_remove();
+    }
+
+    // Handle actions API calls
+
+    async #_create_saved(name, username, password) {
         if (!name.value || !username.value || !password.value) {
             alert('All fields are required');
         } else {
@@ -93,34 +138,15 @@ export default class AppUI {
                     name: data.name,
                     username: data.username
                 }
-                // await this.append_item(acc);
-                this._close_create();
-                console.log('set item in _create_saved')
                 list_event.set_item(acc);
+                this.#_close_create();
             } catch (e) {
                 console.log('Error with account creation', e);
             }
         }
     }
 
-    async edit_item(acc) {
-        this.edit.title.innerHTML = `Editing '${acc.name}' (login=${acc.username}) account.`;
-
-        this.edit.inputs.name.value = acc.name;
-        this.edit.inputs.username.value = acc.username;
-
-        this.edit.buttons.save.onclick = () => {
-            this._edit_saved(
-                acc,
-                this.edit.inputs.name,
-                this.edit.inputs.username,
-                this.edit.inputs.password
-            );
-        }
-        this._open_edit();
-    }
-
-    async _edit_saved(acc, name, username, password) {
+    async #_edit_saved(acc, name, username, password) {
         let data = {}
 
         if (name.value !== acc.name) {
@@ -137,14 +163,13 @@ export default class AppUI {
             console.log('Data to send: ', data);
             try {
                 let res = await api.edit_account(acc.id, data);
-                console.log('Response[_edit_saved]: ', res)
-                this._close_edit();
-                console.log('set item in _edit_saved')
+                console.log('Response[_edit_saved]: ', res);
                 list_event.change_item({
                     id: acc.id,
-                    name: data.name,
-                    username: data.username
+                    name: name.value,
+                    username: username.value
                 })
+                this.#_close_edit();
             } catch (e) {
                 console.log('Error with account editing', e);
             }
@@ -153,122 +178,125 @@ export default class AppUI {
         }
     }
 
-    async remove_item(acc) {
-        console.log('In edit_item: ', this);
-        this.remove.title.innerText = `Remove '${acc.name}' (login=${acc.username}) account?`;
-        this.remove.buttons.confirm.onclick = () => {
-            this._remove_confirmed(acc.id)
-        };
-        this._open_remove();
-    }
-
-    async _remove_confirmed(id) {
+    async #_remove_confirmed(id) {
         try {
             await api.remove_account(id);
-            this._close_remove();
-            console.log('remove item in _remove_confirmed')
+            console.log('remove item in _remove_confirmed');
             list_event.remove_item(id);
+            this.#_close_remove();
         } catch (e) {
             console.log('Error with account removing', e);
         }
     }
 
-    async _initialize_events() {
+    #_initialize_events() {
         list_event.addEventListener('set_item', (event) => {
             console.log(event.type, event.data);
-            this.append_item(event.data);
-        })
+            this.append_item(event.data).then();
+        });
 
         list_event.addEventListener('change_item', (event) => {
             console.log(event.type, event.data);
             document.querySelector(
                 `#account-item-${event.data.id} label`
             ).innerText = `${event.data.name} (${event.data.username})`;
-        })
+        });
 
         list_event.addEventListener('remove_item', (event) => {
             console.log(event.type, event.data);
             this.list.removeChild(
                 document.getElementById(`account-item-${event.data}`)
             );
-        })
+        });
     }
 
-    _initialize_clicks() {
+    #_initialize_clicks() {
         // Buttons bindings
         this.create.buttons.close.onclick = () => {
-            this._close_create();
+            this.#_close_create();
         };
         this.create.buttons.cancel.onclick = () => {
-            this._close_create();
+            this.#_close_create();
         };
         this.create.add.onclick = () => {
             this.create_item().then();
         };
 
         this.edit.buttons.close.onclick = () => {
-            this._close_edit();
+            this.#_close_edit();
         };
         this.edit.buttons.cancel.onclick = () => {
-            this._close_edit();
+            this.#_close_edit();
         };
 
         this.remove.buttons.close.onclick = () => {
-            this._close_remove();
+            this.#_close_remove();
         };
         this.remove.buttons.cancel.onclick = () => {
-            this._close_remove();
+            this.#_close_remove();
         };
 
         // Click anywhere to close modal handler
         window.onclick = (event) => {
             if (event.target === this.create.modal) {
-                this._close_create();
+                this.#_close_create();
             } else if (event.target === this.edit.modal) {
-                this._close_edit();
+                this.#_close_edit();
             } else if (event.target === this.remove.modal) {
-                this._close_remove();
+                this.#_close_remove();
+            }
+        }
+
+        // Close all modals on Escape
+        document.onkeyup = (e) => {
+            if (e.key === 'Escape') {
+                this.#_close_create();
+                this.#_close_edit();
+                this.#_close_remove();
             }
         }
     }
 
-    _close_create() {
+    // Methods for binding open-close modal
+
+    #_close_create() {
         this.create.modal.style.display = 'none';
         Object.values(this.create.inputs).forEach((input) => {
             input.value = null;
         });
     }
 
-    _open_create() {
+    #_open_create() {
         this.create.modal.style.display = 'block';
     }
 
-    _close_edit() {
+    #_close_edit() {
         this.edit.modal.style.display = 'none';
         Object.values(this.edit.inputs).forEach((input) => {
             input.value = null;
         });
     }
 
-    _open_edit() {
+    #_open_edit() {
         this.edit.modal.style.display = 'block';
     }
 
-    _close_remove() {
-        this.remove.modal.style.display = 'none'
+    #_close_remove() {
+        this.remove.modal.style.display = 'none';
     }
 
-    _open_remove() {
-        this.remove.modal.style.display = 'block'
+    #_open_remove() {
+        this.remove.modal.style.display = 'block';
     }
 }
 
+// Components getters
 
-function get_list() {
+function get_list_accounts() {
     return document.getElementById('accounts');
 }
 
-function get_create() {
+function get_create_modal() {
     return {
         modal: document.getElementById('create-account'),
         add: document.getElementById('add-new-account'),
@@ -285,7 +313,7 @@ function get_create() {
     }
 }
 
-function get_edit() {
+function get_edit_modal() {
     return {
         modal: document.getElementById('edit-account'),
         title: document.getElementById('edit-title'),
@@ -302,7 +330,7 @@ function get_edit() {
     }
 }
 
-function get_remove() {
+function get_remove_modal() {
     return {
         modal: document.getElementById('remove-account'),
         title: document.getElementById('remove-title'),

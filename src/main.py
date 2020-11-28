@@ -62,13 +62,13 @@ async def root():
 @app.on_event('startup')
 async def startup():
     await db.connect()
-    await spotifyd.start()
+    # await spotifyd.start()
 
 
 @app.on_event('shutdown')
 async def shutdown():
     await db.disconnect()
-    await spotifyd.stop()
+    # await spotifyd.stop()
 
 
 if settings.ENVIRONMENT == 'LOCAL' and __name__ == '__main__':
