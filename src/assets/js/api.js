@@ -31,6 +31,20 @@ export default class ApiHandler {
         });
     }
 
+    async get_current() {
+        return await this.#_request(
+            'GET',
+            `${this._base}/api/v1/spotifyd/current`
+        )
+    }
+
+    async set_current(id) {
+        return await this.#_request(
+            'POST',
+            `${this._base}/api/v1/spotifyd/switch/${id}`
+        )
+    }
+
     async get_accounts() {
         return await this.#_request(
             'GET',

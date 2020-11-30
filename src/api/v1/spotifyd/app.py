@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from errors import NotFoundException
+from errors import LogHTTPException, NotFoundException
 from models import Account
 from services.spotifyd import spotifyd
 
@@ -98,9 +98,12 @@ async def switch(account_id: int):
         raise NotFoundException(
             f'Not found account with {account_id!r} ID'
         )
-    # await spotifyd.restart()
 
-    return {'username': spotifyd.user}
+    await spotifyd.restart(res['id'])
+    if spotifyd.errors:
+        raise LogHTTPException(detail=spotifyd.errors)
+
+    return spotifyd.user
 
 
 @router.get(
@@ -108,4 +111,4 @@ async def switch(account_id: int):
     summary='Get current spotifyd account name'
 )
 async def current():
-    return {'username': spotifyd.user}
+    return spotifyd.user

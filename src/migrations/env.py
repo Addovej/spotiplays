@@ -8,9 +8,9 @@ from sqlalchemy import engine_from_config, pool
 # Just for imports of app's modules
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+import models
 from conf import settings
 from database import metadata
-from models import accounts
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

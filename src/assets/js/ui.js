@@ -38,10 +38,11 @@ export default class AppUI {
 
     async init_data() {
         try {
+            const current_active = await api.get_current();
             let accounts = await api.get_accounts();
             if (accounts.items.length !== 0) {
                 for (const acc of Object.values(accounts.items)) {
-                    await this.append_item(acc);
+                    await this.append_item(acc, current_active?.id === acc.id);
                 }
             } else {
                 let empty = document.querySelector('body .empty');
@@ -52,35 +53,56 @@ export default class AppUI {
         }
     }
 
-    async create_item_list(acc) {
-        let label = document.createElement('label');
-        label.innerText = `${acc.name} (${acc.username})`;
-
-        let remove_btn = document.createElement('span');
-        remove_btn.className = 'remove';
-        remove_btn.appendChild(document.createTextNode('\u2715'));
-        remove_btn.onclick = () => {
-            this.remove_item(acc);
-        };
-
-        let edit_btn = document.createElement('span');
-        edit_btn.className = 'edit';
-        edit_btn.appendChild(document.createTextNode('\u2630'));  // Or '\u270E'
-        edit_btn.onclick = () => {
-            this.edit_item(acc);
-        };
+    async create_item_list(acc, is_current) {
+        const choose = is_current ? 'chosen' : 'choose';
+        const li_content = `
+            <label>${acc.name} (${acc.username})</label>
+            <div>
+                <span class="${choose}">\u2713</span>
+                <span class="edit">\u2630</span>  <!-- Or \u270E -->
+                <span class="remove">\u2715</span>
+            </div>
+        `;
 
         let item = document.createElement('li');
         item.id = `account-item-${acc.id}`;
-        item.appendChild(label);
-        item.appendChild(edit_btn);
-        item.appendChild(remove_btn);
+        item.innerHTML = li_content;
+        item.querySelector(`.${choose}`).onclick = () => {
+            this.switch_account(acc);
+        };
+        item.querySelector('.edit').onclick = () => {
+            this.edit_item(acc);
+        };
+        item.querySelector('.remove').onclick = () => {
+            this.remove_item(acc);
+        };
+        if (is_current) {
+            item.className = 'account-item-active';
+        }
 
         return item;
     }
 
-    async append_item(acc) {
-        this.list.appendChild(await this.create_item_list(acc));
+    async append_item(acc, is_current) {
+        this.list.appendChild(await this.create_item_list(acc, is_current));
+    }
+
+    async switch_account(acc) {
+        try {
+            let li = this.list.querySelector(`#account-item-${acc.id}`);
+            if (li.className !== 'account-item-active') {
+                console.log('Switch account: ', acc);
+                let res = await api.set_current(acc.id);
+
+                this.list.querySelector('.account-item-active').className = '';
+                this.list.querySelector('.chosen').className = 'choose';
+
+                li.className = 'account-item-active';
+                li.querySelector('.choose').className = 'chosen';
+            }
+        } catch (e) {
+            console.log('Error with switching account', e);
+        }
     }
 
     async create_item() {

@@ -2,6 +2,7 @@ import logging.config
 
 import uvicorn
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -39,6 +40,13 @@ app.add_exception_handler(
     LogHTTPException, log_custom_http_exceptions_handler
 )
 app.add_middleware(LoggingErrorMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 api = APIRouter()
 api.include_router(api_router)
@@ -62,13 +70,13 @@ async def root():
 @app.on_event('startup')
 async def startup():
     await db.connect()
-    # await spotifyd.start()
+    await spotifyd.start()
 
 
 @app.on_event('shutdown')
 async def shutdown():
     await db.disconnect()
-    # await spotifyd.stop()
+    await spotifyd.stop()
 
 
 if settings.ENVIRONMENT == 'LOCAL' and __name__ == '__main__':

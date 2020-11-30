@@ -53,12 +53,9 @@ class AccountSchema(_Base, _Password):
             **_Password.Config.fields
         }
 
-    @validator('password', pre=True)
-    def decrypt_password(cls, v: str) -> str:
+    def password_decrypted(self) -> str:
         f = Fernet(settings.SECRET_KEY)
-        decrypted = f.decrypt(v.encode())
-
-        return decrypted.decode()
+        return f.decrypt(self.password.encode()).decode()
 
 
 class CreateAccountSchema(_Base, _Password):
@@ -72,9 +69,7 @@ class CreateAccountSchema(_Base, _Password):
     @validator('password', pre=True)
     def encrypt_password(cls, v: str) -> str:
         f = Fernet(settings.SECRET_KEY)
-        encrypted = f.encrypt(v.encode())
-
-        return encrypted.decode()
+        return f.encrypt(v.encode()).decode()
 
 
 class UpdateAccountSchema(_Base, _Password):

@@ -17,7 +17,15 @@ class Settings(BaseSettings):
     PORT: int = 8010
     SECRET_KEY: str = Fernet.generate_key()
 
+    SPOTIFY_CLIENT_ID: str
+    SPOTIFY_CLIENT_SECRET: str
+
     DATABASE_URL: str = None
+    SPOTIFYD_CMD: list = [
+        '/usr/bin/spotifyd --no-daemon',
+        '--initial-volume 51',
+        '--config-path /etc/spotifyd.conf'
+    ]
 
     class Config:
         case_sensitive = True

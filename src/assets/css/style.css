@@ -5,6 +5,8 @@ body {
 
 * {
     box-sizing: border-box;
+    font: 1.0em "Fira Sans", sans-serif;
+    font-family: Geneva, Arial, Helvetica, sans-serif;
 }
 
 ul {
@@ -48,30 +50,6 @@ button:focus {
     color: #000;
     cursor: pointer;
     background: darkgray;
-}
-
-.remove {
-    position: absolute;
-    right: 0;
-    top: 0;
-    padding: 12px 16px 12px 16px;
-}
-
-.remove:hover {
-    background-color: #f44336;
-    color: white;
-}
-
-.edit {
-    position: absolute;
-    right: 42px;
-    top: 0;
-    padding: 12px 16px 12px 16px;
-}
-
-.edit:hover {
-    background-color: #149fff;
-    color: white;
 }
 
 /* The Modal (background) */
@@ -198,17 +176,54 @@ button:focus {
 #add-new-account {
     margin-top: 24px;
     margin-left: 12px;
-    background: #79b8ab;
+    background: #149fff;
+    color: white;
 }
 
 #add-new-account:hover {
-    background: #00fac4;
+    background: #0054ff;
 }
 
 #remove-confirm {
-    background: #f44336;
+    color: #f44336;
 }
 
 #remove-confirm:hover {
-    background: #ff1100;
+    color: #ff1100;
+}
+
+li > div {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 12px 16px 12px 16px;
+}
+
+li > div > span {
+    padding: 12px 16px 12px 16px;
+}
+
+.remove:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.edit:hover {
+    background-color: #149fff;
+    color: white;
+}
+
+.choose:hover {
+    background-color: #21aa70;
+    color: white;
+}
+
+.account-item-active {
+    background-color: #21aa70;
+    color: white;
+}
+
+.account-item-active:hover {
+    background-color: #147950;
+    color: white;
 }
