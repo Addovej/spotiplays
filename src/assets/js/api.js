@@ -1,9 +1,16 @@
 export default class ApiHandler {
     constructor() {
+        /** @type {string} */
         this._base = 'http://0.0.0.0:8000';
         window.ApiHandler = this;  // For debugging purposes
     }
 
+    /**
+     * @param {string} method
+     * @param {string} url
+     * @param {Object} data
+     * @return {Promise}
+     */
     async #_request(method, url, data = {}) {
         return new Promise((resolve, reject) => {
             let xhr = new XMLHttpRequest();
@@ -31,6 +38,9 @@ export default class ApiHandler {
         });
     }
 
+    /**
+     * @return {Object}
+     */
     async get_current() {
         return await this.#_request(
             'GET',
@@ -38,6 +48,10 @@ export default class ApiHandler {
         )
     }
 
+    /**
+     * @param {number} id
+     * @return {Object}
+     */
     async set_current(id) {
         return await this.#_request(
             'POST',
@@ -45,6 +59,9 @@ export default class ApiHandler {
         )
     }
 
+    /**
+     * @return {Object}
+     */
     async get_accounts() {
         return await this.#_request(
             'GET',
@@ -52,6 +69,10 @@ export default class ApiHandler {
         )
     }
 
+    /**
+     * @param {Object} data
+     * @return {Object}
+     */
     async add_account(data) {
         return await this.#_request(
             'POST',
@@ -61,6 +82,11 @@ export default class ApiHandler {
 
     }
 
+    /**
+     * @param {number} id
+     * @param {Object} data
+     * @return {Object}
+     */
     async edit_account(id, data) {
         return await this.#_request(
             'PUT',
@@ -69,6 +95,10 @@ export default class ApiHandler {
         );
     }
 
+    /**
+     * @param {number} id
+     * @return {Object}
+     */
     async remove_account(id) {
         return await this.#_request(
             'DELETE',

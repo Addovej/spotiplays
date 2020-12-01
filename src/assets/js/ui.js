@@ -4,20 +4,50 @@ const api = new ApiHandler();
 
 
 class ListEvent extends EventTarget {
+
+    /** @param {Object} acc */
     set_item(acc) {
         this.dispatchEvent(new MessageEvent('set_item', {data: acc}));
     }
 
+    /** @param {Object} acc */
     change_item(acc) {
         this.dispatchEvent(new MessageEvent('change_item', {data: acc}));
     }
 
+    /** @param {number} id */
     remove_item(id) {
         this.dispatchEvent(new MessageEvent('remove_item', {data: id}));
     }
 }
 
 const list_event = new ListEvent();
+
+
+class AccountModel {
+    /**
+     * Account object
+     * @type Object
+     */
+    constructor(acc) {
+        /** @type number */
+        this.id = acc.id;
+
+        /** @type string */
+        this.name = acc.name;
+
+        /** @type string */
+        this.username = acc.username;
+
+        /** @type Object */
+        this.credentials_verification = acc.credentials_verification;
+    }
+
+    /** @type boolean */
+    get is_verified() {
+        return this.credentials_verification.state === 'OK';
+    }
+}
 
 
 export default class AppUI {
@@ -42,7 +72,10 @@ export default class AppUI {
             let accounts = await api.get_accounts();
             if (accounts.items.length !== 0) {
                 for (const acc of Object.values(accounts.items)) {
-                    await this.append_item(acc, current_active?.id === acc.id);
+                    await this.append_item(
+                        new AccountModel(acc),
+                        current_active?.id === acc.id
+                    );
                 }
             } else {
                 let empty = document.querySelector('body .empty');
@@ -53,14 +86,21 @@ export default class AppUI {
         }
     }
 
+    /**
+     * @param {AccountModel} acc
+     * @param {boolean} is_current
+     *
+     * @return {HTMLElement}
+     */
     async create_item_list(acc, is_current) {
+        console.log(acc)
         const choose = is_current ? 'chosen' : 'choose';
         const li_content = `
             <label>${acc.name} (${acc.username})</label>
             <div>
-                <span class="${choose}">\u2713</span>
-                <span class="edit">\u2630</span>  <!-- Or \u270E -->
-                <span class="remove">\u2715</span>
+                <span class="${choose} main-btn">\u2713</span>
+                <span class="edit main-btn">\u2630</span>  <!-- Or \u270E -->
+                <span class="remove main-btn">\u2715</span>
             </div>
         `;
 
@@ -79,20 +119,29 @@ export default class AppUI {
         if (is_current) {
             item.className = 'account-item-active';
         }
+        if (!acc.is_verified) {
+            item.className = 'account-item-verification-failed';
+            item.title = acc.credentials_verification.details;
+        }
 
         return item;
     }
 
+    /**
+     * @param {AccountModel} acc
+     * @param {boolean} is_current
+     */
     async append_item(acc, is_current) {
         this.list.appendChild(await this.create_item_list(acc, is_current));
     }
 
+    /** @param {AccountModel} acc */
     async switch_account(acc) {
         try {
             let li = this.list.querySelector(`#account-item-${acc.id}`);
-            if (li.className !== 'account-item-active') {
+            if (li.className !== 'account-item-active' && acc.is_verified) {
                 console.log('Switch account: ', acc);
-                let res = await api.set_current(acc.id);
+                await api.set_current(acc.id);
 
                 this.list.querySelector('.account-item-active').className = '';
                 this.list.querySelector('.chosen').className = 'choose';
@@ -116,6 +165,7 @@ export default class AppUI {
         this.#_open_create();
     }
 
+    /** @param {AccountModel} acc */
     async edit_item(acc) {
         this.edit.title.innerHTML = `Editing '${acc.name}' (login=${acc.username}) account.`;
 
@@ -133,6 +183,7 @@ export default class AppUI {
         this.#_open_edit();
     }
 
+    /** @param {AccountModel} acc */
     async remove_item(acc) {
         this.remove.title.innerText = `Remove '${acc.name}' (login=${acc.username}) account?`;
         this.remove.buttons.confirm.onclick = () => {
@@ -143,6 +194,11 @@ export default class AppUI {
 
     // Handle actions API calls
 
+    /**
+     * @param {Object} name
+     * @param {Object} username
+     * @param {Object} password
+     */
     async #_create_saved(name, username, password) {
         if (!name.value || !username.value || !password.value) {
             alert('All fields are required');
@@ -168,6 +224,12 @@ export default class AppUI {
         }
     }
 
+    /**
+     * @param {AccountModel} acc
+     * @param {Object} name
+     * @param {Object} username
+     * @param {Object} password
+     */
     async #_edit_saved(acc, name, username, password) {
         let data = {}
 
@@ -200,6 +262,7 @@ export default class AppUI {
         }
     }
 
+    /** @param {number} id */
     async #_remove_confirmed(id) {
         try {
             await api.remove_account(id);
@@ -214,7 +277,7 @@ export default class AppUI {
     #_initialize_events() {
         list_event.addEventListener('set_item', (event) => {
             console.log(event.type, event.data);
-            this.append_item(event.data).then();
+            this.append_item(new AccountModel(event.data), false).then();
         });
 
         list_event.addEventListener('change_item', (event) => {
@@ -314,10 +377,12 @@ export default class AppUI {
 
 // Components getters
 
+/** @return {HTMLElement} */
 function get_list_accounts() {
     return document.getElementById('accounts');
 }
 
+/** @return {Object} */
 function get_create_modal() {
     return {
         modal: document.getElementById('create-account'),
@@ -335,6 +400,7 @@ function get_create_modal() {
     }
 }
 
+/** @return {Object} */
 function get_edit_modal() {
     return {
         modal: document.getElementById('edit-account'),
@@ -352,6 +418,7 @@ function get_edit_modal() {
     }
 }
 
+/** @return {Object} */
 function get_remove_modal() {
     return {
         modal: document.getElementById('remove-account'),
