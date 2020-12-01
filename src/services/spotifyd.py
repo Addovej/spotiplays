@@ -28,7 +28,11 @@ class Spotifyd:
 
     errors: list = []
 
-    async def _init_account(self) -> None:
+    async def _init_account(self, account: AccountSchema = None) -> None:
+        if account and account.is_verified():
+            await ActiveAccount.set_active(account.id)
+            self._account = account
+
         if self._account is None:
             active = await ActiveAccount.get_active()
             if active:
@@ -38,7 +42,7 @@ class Spotifyd:
                 logger.debug(f'Initialized account {self._account.name!r}.')
 
     def _build_cmd(self) -> None:
-        if self._account:
+        if self._account and self._account.is_verified():
             cmd_list = settings.SPOTIFYD_CMD + [
                 f'--username {self._account.username}',
                 f'--password {self._account.password_decrypted()}'
@@ -83,6 +87,13 @@ class Spotifyd:
                 *_, msg = event.partition(': ')
                 self.errors.append(msg)
                 logger.error(event)
+
+                if msg.startswith('Authentication failed'):
+                    await Account.change_credentials_verification(
+                        self._account.id,
+                        {'state': 'FAILED', 'details': msg}
+                    )
+
                 break
 
             else:
@@ -91,10 +102,8 @@ class Spotifyd:
         logger.debug('Done with listen messages from spotifyd.')
         self._terminate_spotifyd()
 
-    async def start(self, account_id: int = None) -> None:
-        if account_id:
-            await ActiveAccount.set_active(account_id)
-        await self._init_account()
+    async def start(self, account: AccountSchema = None) -> None:
+        await self._init_account(account)
 
         if self.cmd is not None:
             logger.debug(
@@ -112,9 +121,9 @@ class Spotifyd:
         self._terminate_spotifyd()
         self._reset_data()
 
-    async def restart(self, account_id: int = None) -> None:
+    async def restart(self, account: AccountSchema = None) -> None:
         await self.stop()
-        await self.start(account_id)
+        await self.start(account)
 
     def _reset_data(self) -> None:
         logger.debug('Resetting data.')

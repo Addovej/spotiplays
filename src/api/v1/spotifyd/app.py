@@ -1,10 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 
 from errors import LogHTTPException, NotFoundException
 from models import Account
 from services.spotifyd import spotifyd
 
 from .schemas import (
+    AccountSchema,
     CreateAccountSchema,
     GetAccountSchema,
     GetListAccountSchema,
@@ -99,7 +100,17 @@ async def switch(account_id: int):
             f'Not found account with {account_id!r} ID'
         )
 
-    await spotifyd.restart(res['id'])
+    account = AccountSchema.parse_obj(res)
+    if not account.is_verified():
+        raise LogHTTPException(
+            status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                'message': 'Account verification failed. '
+                           'Check your spotify credentials'
+            }
+        )
+
+    await spotifyd.restart(account)
     if spotifyd.errors:
         raise LogHTTPException(detail=spotifyd.errors)
 

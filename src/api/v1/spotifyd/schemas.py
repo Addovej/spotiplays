@@ -41,13 +41,22 @@ class _Password(BaseModel):
         }
 
 
+class CredentialsVerification(BaseModel):
+    state: str
+    details: str
+
+
 class AccountSchema(_Base, _Password):
     id: int
+    credentials_verification: CredentialsVerification
 
     class Config:
         fields = {
             'id': {
                 'title': 'Account ID'
+            },
+            'credentials_verification': {
+                'title': 'Account credential verification data'
             },
             **_Base.Config.fields,
             **_Password.Config.fields
@@ -56,6 +65,9 @@ class AccountSchema(_Base, _Password):
     def password_decrypted(self) -> str:
         f = Fernet(settings.SECRET_KEY)
         return f.decrypt(self.password.encode()).decode()
+
+    def is_verified(self) -> bool:
+        return self.credentials_verification.state == 'OK'
 
 
 class CreateAccountSchema(_Base, _Password):
@@ -86,11 +98,15 @@ class UpdateAccountSchema(_Base, _Password):
 
 class GetAccountSchema(_Base):
     id: int
+    credentials_verification: CredentialsVerification
 
     class Config:
         fields = {
             'id': {
                 'title': 'Account ID'
+            },
+            'credentials_verification': {
+                'title': 'Account credential verification data'
             },
             **_Base.Config.fields
         }

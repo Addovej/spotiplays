@@ -24,11 +24,27 @@ accounts = sa.Table(
     sa.Column('name', sa.String(45)),
     sa.Column('username', sa.String(45), unique=True),
     sa.Column('password', sa.String(45)),
+    sa.Column('credentials_verification', sa.JSON, nullable=True),
 )
 
 
 class Account(BaseModelInterface):
     model = accounts
+
+    @classmethod
+    async def create(cls, **kwargs):
+        # TODO: Change it to call API for verify.
+        verification = {'state': 'OK', 'details': ''}
+        return await super().create(
+            credentials_verification=verification,
+            **kwargs
+        )
+
+    @classmethod
+    async def change_credentials_verification(cls, pk: int, data: dict):
+        return await cls.update(
+            pk=pk, credentials_verification=data
+        )
 
 
 class ActiveAccount:
