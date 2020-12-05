@@ -1,7 +1,8 @@
-version: '3.8'
+version: '3.3'
 
 services:
   web:
+    image: spotiplays
     build:
       context: .
     devices:
@@ -10,18 +11,29 @@ services:
       - .env
     volumes:
       - ./src:/opt/project
-      - ./spotifyd/spotifyd.conf:/etc/spotifyd.conf:ro
+      - ./spotifyd.conf:/etc/spotifyd.conf:ro
     ports:
       - 8000:8010
     command: uvicorn --port 8010 --host 0.0.0.0 --loop uvloop main:app
+    depends_on:
+      - migrate
 
-#  homeassistant:
-#    # Use homeassistant/raspberrypi3-homeassistant:stable image for raspberry Pi
-#    image: homeassistant/home-assistant:stable
-#    volumes:
-#      - ./hass/:/config/
+  migrate:
+    image: spotiplays
+    build:
+      context: .
+    env_file:
+      - .env
+    volumes:
+      - ./src:/opt/project
+    command: alembic upgrade head
+
+  homeassistant:
+    # Use homeassistant/raspberrypi3-homeassistant:stable image for raspberry Pi
+    image: homeassistant/home-assistant:stable
+    volumes:
+      - ./hass/:/config/
+    ports:
+    - 8123:8123
 #    network_mode: host
-#    restart: always
-
-volumes:
-  spotifyd_tmp:
+    restart: always

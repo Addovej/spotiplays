@@ -1,7 +1,7 @@
 export default class ApiHandler {
     constructor() {
         /** @type {string} */
-        this._base = 'http://0.0.0.0:8000';
+        this._base = '';
         window.ApiHandler = this;  // For debugging purposes
     }
 

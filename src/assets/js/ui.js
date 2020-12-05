@@ -143,8 +143,11 @@ export default class AppUI {
                 console.log('Switch account: ', acc);
                 await api.set_current(acc.id);
 
-                this.list.querySelector('.account-item-active').className = '';
-                this.list.querySelector('.chosen').className = 'choose';
+                let active = this.list.querySelector('.account-item-active');
+                if (active) {
+                    active.className = '';
+                    active.querySelector('.chosen').className = 'choose';
+                }
 
                 li.className = 'account-item-active';
                 li.querySelector('.choose').className = 'chosen';
@@ -277,7 +280,13 @@ export default class AppUI {
     #_initialize_events() {
         list_event.addEventListener('set_item', (event) => {
             console.log(event.type, event.data);
-            this.append_item(new AccountModel(event.data), false).then();
+            const new_acc = {
+                id: event.data.id,
+                name: event.data.name,
+                username: event.data.username,
+                credentials_verification: {state: 'OK'}  // Just to save data consistency
+            }
+            this.append_item(new AccountModel(new_acc), false).then();
         });
 
         list_event.addEventListener('change_item', (event) => {

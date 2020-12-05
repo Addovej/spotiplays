@@ -1,4 +1,5 @@
 aiofiles==0.6.0
+aiohttp==3.7.3
 alembic==1.4.3
 cryptography==3.2.1
 databases[sqlite]==0.4.1

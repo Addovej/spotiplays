@@ -62,7 +62,10 @@ class Spotifyd:
 
     @property
     def user(self) -> dict:
-        return self._account.dict(exclude={'password'})
+        if self._account:
+            return self._account.dict(exclude={'password'})
+
+        return {}
 
     async def _listener(self) -> None:
         logger.debug('Starting listen messages from spotifyd.')
