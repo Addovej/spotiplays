@@ -21,16 +21,27 @@ class Settings(BaseSettings):
     SPOTIFY_CLIENT_SECRET: str
 
     DATABASE_URL: str = None
-    SPOTIFYD_CMD: list = [
-        '/usr/bin/spotifyd --no-daemon',
-        '--initial-volume 51',
-        '--config-path /etc/spotifyd.conf'
-    ]
+    SPOTIFYD_CMD: list = ['/usr/bin/spotifyd --no-daemon']
+
+    # spotifyd.conf
+    FORCE_GENERATE: bool = True
+    INITIAL_VOLUME: int = 51
+    CONFIG_PATH: str = '/etc/spotifyd.conf'  # Default path
+
+    CONF_BACKEND: str = 'alsa'
+    CONF_DEVICE: str = 'default'
+    CONF_MIXER: str = 'PCM'
+    CONF_VOLUME_CONTROLLER: str = 'alsa'
+    CONF_DEVICE_NAME: str = 'SpotiPlays'
+    CONF_BITRATE: int = 320
+    CONF_CACHE_PATH: str = '/tmp'
+    CONF_NO_AUDIO_CACHE: bool = False
+    CONF_VOLUME_NORMALISATION: bool = True
+    CONF_NORMALISATION_PREGAIN: int = -10
+    CONF_DEVICE_TYPE: str = 'speaker'
 
     class Config:
         case_sensitive = True
-        # Remove next line if you want use an environment variables
-        env_file = '.env'
 
     @validator('LOGS_DIR', pre=True)
     def create_logs_dir(

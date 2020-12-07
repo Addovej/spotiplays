@@ -25,6 +25,8 @@
 ### Usage
 Go to http://0.0.0.0:8000
 
+https://github.com/Spotifyd/spotifyd#configuration-file
+
 Add your spotify account credentials and apply them. After this it should work. 
 
 

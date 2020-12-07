@@ -13,6 +13,7 @@ from database import db
 from errors import LogHTTPException, log_custom_http_exceptions_handler
 from middlewares import LoggingErrorMiddleware
 from services.spotifyd import spotifyd
+from utils import generate_spotifyd_conf
 
 logging.config.dictConfig(
     get_logging(settings.LOGS_DIR)
@@ -69,6 +70,7 @@ async def root():
 
 @app.on_event('startup')
 async def startup():
+    await generate_spotifyd_conf()
     await db.connect()
     await spotifyd.start()
 

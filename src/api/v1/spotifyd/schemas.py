@@ -1,7 +1,6 @@
-from cryptography.fernet import Fernet
 from pydantic import BaseModel, validator
 
-from conf import settings
+from utils import decrypt, encrypt
 
 __all__ = (
     'AccountSchema',
@@ -63,8 +62,7 @@ class AccountSchema(_Base, _Password):
         }
 
     def password_decrypted(self) -> str:
-        f = Fernet(settings.SECRET_KEY)
-        return f.decrypt(self.password.encode()).decode()
+        return decrypt(self.password)
 
     def is_verified(self) -> bool:
         return self.credentials_verification.state == 'OK'
@@ -80,8 +78,7 @@ class CreateAccountSchema(_Base, _Password):
 
     @validator('password', pre=True)
     def encrypt_password(cls, v: str) -> str:
-        f = Fernet(settings.SECRET_KEY)
-        return f.encrypt(v.encode()).decode()
+        return encrypt(v)
 
 
 class UpdateAccountSchema(_Base, _Password):

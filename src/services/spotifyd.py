@@ -43,7 +43,10 @@ class Spotifyd:
 
     def _build_cmd(self) -> None:
         if self._account and self._account.is_verified():
+            # TODO: Remember volume and use as initial.
             cmd_list = settings.SPOTIFYD_CMD + [
+                f'--config-path {settings.CONFIG_PATH}',
+                f'--initial-volume {settings.INITIAL_VOLUME}',
                 f'--username {self._account.username}',
                 f'--password {self._account.password_decrypted()}'
             ]
