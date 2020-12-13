@@ -29,7 +29,7 @@ async def generate_spotifyd_conf() -> None:
             #   these keys in snake case.
             #   Therefore makes some slugify.
             if _key in ('VOLUME_CONTROLLER', ):
-                _key.replace('_', '-')
+                _key = _key.replace('_', '-')
             conf[_key.lower()] = value
 
     if settings.FORCE_GENERATE and conf:
