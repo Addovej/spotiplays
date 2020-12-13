@@ -1,5 +1,7 @@
 # Spotifyd playlists handler
 
+![Python application](https://github.com/Addovej/spotiplays/workflows/Python%20application/badge.svg?branch=master)
+
 ## Currently this python app based on fastAPI which handle spotifyd daemon with home assistant
 
 
