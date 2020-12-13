@@ -31,7 +31,7 @@ services:
     # Use homeassistant/raspberrypi3-homeassistant:stable image for raspberry Pi
     image: homeassistant/home-assistant:stable
     volumes:
-      - ./hass/:/config/
+      - ./hass-config/:/config/
     ports:
     - 8123:8123
     restart: always
