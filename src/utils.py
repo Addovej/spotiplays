@@ -24,6 +24,12 @@ async def generate_spotifyd_conf() -> None:
     for key, value in settings.dict().items():
         if key.startswith('CONF_'):
             *_, _key = key.partition('_')
+
+            # For some reason spotifyd could not recognize
+            #   these keys in snake case.
+            #   Therefore makes some slugify.
+            if _key in ('VOLUME_CONTROLLER', ):
+                _key.replace('_', '-')
             conf[_key.lower()] = value
 
     if settings.FORCE_GENERATE and conf:
