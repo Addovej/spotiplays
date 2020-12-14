@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import toml
 from cryptography.fernet import Fernet
 
@@ -20,22 +22,26 @@ async def generate_spotifyd_conf() -> None:
     CONF_ prefixed settings.
     """
 
-    conf: dict = {}
-    for key, value in settings.dict().items():
-        if key.startswith('CONF_'):
-            *_, _key = key.partition('_')
+    if not Path(settings.CONFIG_PATH).exists() or settings.FORCE_GENERATE:
+        conf: dict = {}
+        need_slugify: tuple = (
+            'VOLUME_CONTROLLER',
+            'VOLUME_NORMALISATION',
+            'NORMALISATION_PREGAIN',
+        )
 
-            # For some reason spotifyd could not recognize
-            #   these keys in snake case.
-            #   Therefore makes some slugify.
-            if _key in (
-                    'VOLUME_CONTROLLER',
-                    'VOLUME_NORMALISATION',
-                    'NORMALISATION_PREGAIN',
-            ):
-                _key = _key.replace('_', '-')
-            conf[_key.lower()] = value
+        for key, value in settings.dict().items():
+            if key.startswith('CONF_'):
+                *_, _key = key.partition('_')
 
-    if settings.FORCE_GENERATE and conf:
-        with open(settings.CONFIG_PATH, 'w') as f:
-            toml.dump({'global': conf}, f)
+                # For some reason spotifyd could not recognize
+                #   these keys in snake case.
+                #   Therefore makes some slugify.
+                if _key in need_slugify:
+                    _key = _key.replace('_', '-')
+
+                conf[_key.lower()] = value
+
+        if conf:
+            with open(settings.CONFIG_PATH, 'w') as f:
+                toml.dump({'global': conf}, f)
