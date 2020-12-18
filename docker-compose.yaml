@@ -13,6 +13,7 @@ services:
       - ./src:/opt/project
     ports:
       - 8000:8010
+    restart: always
     command: uvicorn --port 8010 --host 0.0.0.0 --loop uvloop main:app
     depends_on:
       - migrate
@@ -28,10 +29,34 @@ services:
     command: alembic upgrade head
 
   homeassistant:
-    # Use homeassistant/raspberrypi3-homeassistant:stable image for raspberry Pi
     image: homeassistant/home-assistant:stable
     volumes:
       - ./hass-config/:/config/
     ports:
     - 8123:8123
     restart: always
+
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - 1883:1883
+      - 8883:8883
+    volumes:
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-logs:/mosquitto/logs
+      - mosquitto-conf:/mosquitto/config
+    restart: unless-stopped
+
+  valmapper:
+    image: rand256/valetudo-mapper
+    volumes:
+      - ./config.json:/app/config.json
+    ports:
+      - 3000:3000
+
+
+volumes:
+  mosquitto-data:
+  mosquitto-logs:
+  mosquitto-conf:
+
