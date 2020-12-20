@@ -29,7 +29,7 @@ services:
     command: alembic upgrade head
 
   homeassistant:
-    image: homeassistant/home-assistant:stable
+    image: homeassistant/home-assistant:2020.12.1
     volumes:
       - ./hass-config/:/config/
     ports:
