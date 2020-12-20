@@ -1,8 +1,6 @@
-# Spotifyd playlists handler
+# SpotiPlays - a WEB application for manage [spotifyd](https://github.com/Spotifyd/spotifyd) with multiaccounts.
 
 ![Python application](https://github.com/Addovej/spotiplays/workflows/Python%20application/badge.svg?branch=master)
-
-## Currently this python app based on fastAPI which handle spotifyd daemon with home assistant
 
 
 ### Install
@@ -25,13 +23,15 @@
 ```
 
 ### Usage
-Go to http://0.0.0.0:8000
+Go to http://0.0.0.0:8000 for list of accounts.
 
-https://github.com/Spotifyd/spotifyd#configuration-file
+Go to http://0.0.0.0:8000/api/docs for view API documentation.
+
+[Here](https://github.com/Spotifyd/spotifyd#configuration-file) full list of spotifyd configuration.
 
 Add your spotify account credentials and apply them. After this it should work. 
 
 
 # Note
-This project in progress development.
-The documentation will be soon.
+This project in a progress development.
+The full documentation will be soon.
