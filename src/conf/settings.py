@@ -58,4 +58,4 @@ class Settings(BaseSettings):
     def create_db_url(
             cls, v: Optional[str], values: Dict[str, Any]
     ) -> str:
-        return f'sqlite:///{values["BASE_DIR"]}/spotiplays.db'
+        return f'sqlite:///{values["BASE_DIR"]}/data/spotiplays.db'
