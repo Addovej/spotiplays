@@ -1,28 +1,10 @@
-FROM alpine:3.12.1 AS build
-
-# Build spotifyd
-RUN apk -U --no-cache add \
-	alsa-lib-dev \
-	autoconf \
-	automake \
-	build-base \
-	gcc \
-	git \
-	libconfig-dev \
-	libdaemon-dev \
-	libstdc++ \
-	libtool \
-	openssl-dev \
-	rust \
-	cargo
-
-RUN cd /root \
-    && git clone https://github.com/Spotifyd/spotifyd . \
-    && cargo build --release
+FROM addovej/spotifyd:latest as spotifyd
 
 FROM python:3.9-alpine
 
+COPY --from=spotifyd /usr/bin/spotifyd /usr/bin/spotifyd
 COPY ./requirements.txt /tmp
+
 RUN apk -U --no-cache add \
     alsa-lib-dev \
     libconfig-dev \
@@ -37,8 +19,6 @@ RUN apk -U --no-cache add \
     && pip --no-cache-dir install -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt \
     && apk del --no-cache .build-deps
-
-COPY --from=build /root/target/release/spotifyd /usr/bin/spotifyd
 
 ADD ./src /opt/project
 WORKDIR /opt/project
