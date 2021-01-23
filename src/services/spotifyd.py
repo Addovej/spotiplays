@@ -72,10 +72,17 @@ class Spotifyd:
 
     async def _listener(self) -> None:
         logger.debug('Starting listen messages from spotifyd.')
+        restart: bool = False
 
         while True:
             line = await self._spotifyd.stdout.readline()
             event = line.decode().strip()
+
+            # To prevent infinity empty logs in error
+            if not event:
+                logger.error('Restarting spotifyd...')
+                restart = True
+                break
 
             if event.startswith('Authenticated'):
                 self._auth, *_ = re.findall(r'"(.*?)"', event)
@@ -103,10 +110,10 @@ class Spotifyd:
                 break
 
             else:
-                logger.debug(f'Spotifyd: {event!r}.')
+                logger.debug(f'Spotifyd: {event}')
 
         logger.debug('Done with listen messages from spotifyd.')
-        self._terminate_spotifyd()
+        await self._terminate_or_restart(restart)
 
     async def start(self, account: AccountSchema = None) -> None:
         await self._init_account(account)
@@ -130,6 +137,12 @@ class Spotifyd:
     async def restart(self, account: AccountSchema = None) -> None:
         await self.stop()
         await self.start(account)
+
+    async def _terminate_or_restart(self, restart: bool = False) -> None:
+        self._terminate_spotifyd()
+
+        if restart:
+            await self.start()
 
     def _reset_data(self) -> None:
         logger.debug('Resetting data.')

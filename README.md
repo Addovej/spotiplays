@@ -1,6 +1,7 @@
 # SpotiPlays - a WEB application for manage [spotifyd](https://github.com/Spotifyd/spotifyd) with multiaccounts.
 
 ![Python application](https://github.com/Addovej/spotiplays/workflows/Python%20application/badge.svg?branch=master)
+![Dockerhub build](https://github.com/Addovej/spotiplays/workflows/Dockerhub%20build/badge.svg)
 
 
 ### Install
