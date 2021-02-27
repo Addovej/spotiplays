@@ -24,11 +24,13 @@ class Spotifyd:
     _account: Optional[AccountSchema] = None
     _auth: Optional[str] = None
     _cmd: Optional[str] = None
-    _current_playback: Optional[dict] = None
+    _current_playback: Optional[dict[str, str]] = None
 
-    errors: list = []
+    errors: list[str] = []
 
-    async def _init_account(self, account: AccountSchema = None) -> None:
+    async def _init_account(
+            self, account: Optional[AccountSchema] = None
+    ) -> None:
         if account and account.is_verified():
             await ActiveAccount.set_active(account.id)
             self._account = account
@@ -39,7 +41,7 @@ class Spotifyd:
                 account_db = await Account.get_by_id(active['account_id'])
                 self._account = AccountSchema.parse_obj(account_db)
 
-                logger.debug(f'Initialized account {self._account.name!r}.')
+                logger.debug(f'initialized account {self._account.name!r}.')
 
     def _build_cmd(self) -> None:
         if self._account and self._account.is_verified():
@@ -60,7 +62,7 @@ class Spotifyd:
         return self._cmd
 
     @property
-    def current_playback(self) -> dict:
+    def current_playback(self) -> Optional[dict]:
         return self._current_playback
 
     @property
@@ -71,8 +73,12 @@ class Spotifyd:
         return {}
 
     async def _listener(self) -> None:
-        logger.debug('Starting listen messages from spotifyd.')
+        logger.debug('starting listen messages from spotifyd.')
         restart: bool = False
+
+        assert self._account is not None, 'account not initialized'
+        assert self._spotifyd is not None, 'spotifyd not running'
+        assert self._spotifyd.stdout is not None, 'spotifyd has not stdout'
 
         while True:
             line = await self._spotifyd.stdout.readline()
@@ -80,13 +86,13 @@ class Spotifyd:
 
             # To prevent infinity empty logs in error
             if not event:
-                logger.error('Restarting spotifyd...')
+                logger.error('restarting spotifyd...')
                 restart = True
                 break
 
             if event.startswith('Authenticated'):
                 self._auth, *_ = re.findall(r'"(.*?)"', event)
-                logger.debug(f'Authenticated as {self._auth!r}')
+                logger.debug(f'authenticated as {self._auth!r}')
 
             elif event.startswith('Loading <'):
                 name, uri, *_ = re.findall(r'<(.*?)>', event)
@@ -94,7 +100,7 @@ class Spotifyd:
                     'name': name,
                     'uri': uri
                 }
-                logger.debug(f'Current track: {name!r}[{uri}].')
+                logger.debug(f'current track: {name!r}[{uri}].')
 
             elif event.startswith('Caught panic with message:'):
                 *_, msg = event.partition(': ')
@@ -110,17 +116,19 @@ class Spotifyd:
                 break
 
             else:
-                logger.debug(f'Spotifyd: {event}')
+                logger.debug(f'spotifyd: {event}')
 
-        logger.debug('Done with listen messages from spotifyd.')
+        logger.debug('done with listen messages from spotifyd.')
         await self._terminate_or_restart(restart)
 
-    async def start(self, account: AccountSchema = None) -> None:
+    async def start(self, account: Optional[AccountSchema] = None) -> None:
         await self._init_account(account)
+
+        assert self._account is not None, 'account not initialized'
 
         if self.cmd is not None:
             logger.debug(
-                f'Starting spotifyd for {self._account.name!r} account.'
+                f'starting spotifyd for {self._account.name!r} account.'
             )
 
             self._spotifyd = await asyncio.create_subprocess_shell(
@@ -134,7 +142,7 @@ class Spotifyd:
         self._terminate_spotifyd()
         self._reset_data()
 
-    async def restart(self, account: AccountSchema = None) -> None:
+    async def restart(self, account: Optional[AccountSchema] = None) -> None:
         await self.stop()
         await self.start(account)
 
@@ -145,14 +153,14 @@ class Spotifyd:
             await self.start()
 
     def _reset_data(self) -> None:
-        logger.debug('Resetting data.')
+        logger.debug('resetting data.')
         self._account = self._auth = self._cmd = self._current_playback = None
 
         self.errors = []
 
     def _stop_listener_task(self) -> None:
         if self._listener_task:
-            logger.debug('Stopping listener task.')
+            logger.debug('stopping listener task.')
 
             if self._listener_task.done():
                 self._listener_task.result()
@@ -163,7 +171,7 @@ class Spotifyd:
 
     def _terminate_spotifyd(self) -> None:
         if self._spotifyd and self._spotifyd.returncode is None:
-            logger.debug('Stopping spotifyd.')
+            logger.debug('stopping spotifyd.')
 
             self._spotifyd.terminate()
             self._spotifyd = None

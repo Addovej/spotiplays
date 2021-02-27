@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Union
+from typing import Optional, Union
 
 from fastapi import HTTPException, status
 from fastapi.requests import Request
@@ -15,7 +15,7 @@ logger = getLogger('request.4XX')
 
 
 class NotFoundException(HTTPException):
-    def __init__(self, detail: Union[Dict, str] = None) -> None:
+    def __init__(self, detail: Optional[Union[dict, str]] = None) -> None:
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=detail
@@ -26,7 +26,7 @@ class LogHTTPException(HTTPException):
     def __init__(
             self,
             status: int = status.HTTP_400_BAD_REQUEST,
-            detail: Union[Dict, str] = None
+            detail: Optional[Union[dict, str]] = None
     ) -> None:
         super().__init__(
             status_code=status,

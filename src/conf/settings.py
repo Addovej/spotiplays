@@ -13,15 +13,15 @@ class Settings(BaseSettings):
     API_ROOT: Path
     BASE_DIR: Path = Path(__file__).parent.parent
     ENVIRONMENT: str = 'LOCAL'
-    LOGS_DIR: Path = None
+    LOGS_DIR: Path
     PORT: int = 8010
-    SECRET_KEY: str = Fernet.generate_key()
+    SECRET_KEY: str = str(Fernet.generate_key())
 
     SPOTIFY_CLIENT_ID: str
     SPOTIFY_CLIENT_SECRET: str
 
-    DATABASE_URL: str = None
-    SPOTIFYD_CMD: list = ['/usr/bin/spotifyd --no-daemon']
+    DATABASE_URL: Optional[str]
+    SPOTIFYD_CMD: list[str] = ['/usr/bin/spotifyd --no-daemon']
 
     # spotifyd.conf
     FORCE_GENERATE: bool = True
@@ -58,4 +58,7 @@ class Settings(BaseSettings):
     def create_db_url(
             cls, v: Optional[str], values: Dict[str, Any]
     ) -> str:
-        return f'sqlite:///{values["BASE_DIR"]}/data/spotiplays.db'
+        if v is None:
+            return f'sqlite:///{values["BASE_DIR"]}/data/spotiplays.db'
+
+        return v

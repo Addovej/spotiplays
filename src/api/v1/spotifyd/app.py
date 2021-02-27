@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status
+from sqlalchemy.engine.result import RowProxy
 
 from errors import LogHTTPException, NotFoundException
 from models import Account
@@ -25,7 +26,7 @@ router = APIRouter()
     '/accounts',
     summary='Add a new Spotify account'
 )
-async def accounts(account: CreateAccountSchema):
+async def account_create(account: CreateAccountSchema) -> dict[str, int]:
     res = await Account.create(**account.dict())
 
     return {'id': res}
@@ -36,7 +37,7 @@ async def accounts(account: CreateAccountSchema):
     summary='Get accounts list',
     response_model=GetListAccountSchema
 )
-async def accounts():
+async def account_list() -> dict[str, list[dict]]:
     res = await Account.get_list(limit=50)
 
     return {
@@ -49,7 +50,7 @@ async def accounts():
     summary='Get account by ID',
     response_model=GetAccountSchema
 )
-async def accounts(account_id: int):
+async def account_get(account_id: int) -> RowProxy:
     res = await Account.get_by_id(account_id)
     if not res:
         raise NotFoundException(
@@ -63,7 +64,9 @@ async def accounts(account_id: int):
     '/accounts/{account_id}',
     summary='Update account by ID'
 )
-async def accounts(account_id: int, account: UpdateAccountSchema):
+async def account_update(
+        account_id: int, account: UpdateAccountSchema
+) -> dict[str, int]:
     res = await Account.update(account_id, **account.dict(exclude_none=True))
     if not res:
         raise NotFoundException(
@@ -77,7 +80,7 @@ async def accounts(account_id: int, account: UpdateAccountSchema):
     '/accounts/{account_id}',
     summary='Delete account by ID'
 )
-async def accounts(account_id: int):
+async def account_delete(account_id: int) -> dict[str, int]:
     res = await Account.delete(account_id)
     if not res:
         raise NotFoundException(
@@ -93,7 +96,7 @@ async def accounts(account_id: int):
     '/switch/{account_id}',
     summary='Switch Spotify account by ID'
 )
-async def switch(account_id: int):
+async def switch(account_id: int) -> dict:
     res = await Account.get_by_id(account_id)
     if not res:
         raise NotFoundException(
@@ -112,7 +115,7 @@ async def switch(account_id: int):
 
     await spotifyd.restart(account)
     if spotifyd.errors:
-        raise LogHTTPException(detail=spotifyd.errors)
+        raise LogHTTPException(detail={'errors': spotifyd.errors})
 
     return spotifyd.user
 
@@ -121,5 +124,5 @@ async def switch(account_id: int):
     '/current',
     summary='Get current spotifyd account name'
 )
-async def current():
+async def current() -> dict:
     return spotifyd.user

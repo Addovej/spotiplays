@@ -15,8 +15,6 @@ services:
       - 8000:8010
     restart: unless-stopped
     command: uvicorn --port 8010 --host 0.0.0.0 --loop uvloop main:app
-    depends_on:
-      - migrate
 
   migrate:
     image: spotiplays

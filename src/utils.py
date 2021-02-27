@@ -23,8 +23,8 @@ async def generate_spotifyd_conf() -> None:
     """
 
     if not Path(settings.CONFIG_PATH).exists() or settings.FORCE_GENERATE:
-        conf: dict = {}
-        need_slugify: tuple = (
+        conf: dict[str, str] = {}
+        need_slugify: tuple[str, ...] = (
             'VOLUME_CONTROLLER',
             'VOLUME_NORMALISATION',
             'NORMALISATION_PREGAIN',

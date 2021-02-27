@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, validator
 
 from utils import decrypt, encrypt
@@ -82,9 +84,9 @@ class CreateAccountSchema(_Base, _Password):
 
 
 class UpdateAccountSchema(_Base, _Password):
-    name: str = None
-    username: str = None
-    password: str = None
+    name: Optional[str]  # type: ignore
+    username: Optional[str]  # type: ignore
+    password: Optional[str]  # type: ignore
 
     class Config:
         fields = {

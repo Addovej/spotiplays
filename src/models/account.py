@@ -1,4 +1,7 @@
+from typing import Optional, Union
+
 import sqlalchemy as sa
+from sqlalchemy.engine.result import RowProxy
 
 from database import db, metadata
 
@@ -32,7 +35,7 @@ class Account(BaseModelInterface):
     model = accounts
 
     @classmethod
-    async def create(cls, **kwargs):
+    async def create(cls, **kwargs: Union[str, int, dict]) -> int:
         # TODO: Change it to call API for verify.
         verification = {'state': 'OK', 'details': ''}
         return await super().create(
@@ -41,7 +44,9 @@ class Account(BaseModelInterface):
         )
 
     @classmethod
-    async def change_credentials_verification(cls, pk: int, data: dict):
+    async def change_credentials_verification(
+            cls, pk: int, data: dict[str, str]
+    ) -> int:
         return await cls.update(
             pk=pk, credentials_verification=data
         )
@@ -51,7 +56,7 @@ class ActiveAccount:
     model = active_account
 
     @classmethod
-    async def get_active(cls):
+    async def get_active(cls) -> Optional[RowProxy]:
         return await db.fetch_one(
             sa.sql.select([
                 active_account
@@ -59,7 +64,7 @@ class ActiveAccount:
         )
 
     @classmethod
-    async def set_active(cls, account_id: int):
+    async def set_active(cls, account_id: int) -> int:
         res = await db.execute(
             sa.update(
                 cls.model

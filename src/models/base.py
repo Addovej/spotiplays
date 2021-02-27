@@ -1,7 +1,8 @@
-from typing import Any, Union
+from typing import Any, List, Optional, Union
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy.engine.result import RowProxy
 
 from database import db
 
@@ -13,10 +14,12 @@ PK = Union[int, UUID]
 
 
 class BaseModelInterface:
-    model = None
+    model: sa.Table = None
 
     @classmethod
-    async def get_by_id(cls, pk: PK):
+    async def get_by_id(
+            cls, pk: PK
+    ) -> Optional[RowProxy]:
         return await db.fetch_one(
             sa.sql.select([
                 cls.model
@@ -26,7 +29,9 @@ class BaseModelInterface:
         )
 
     @classmethod
-    async def get_by_col_name(cls, col_name: str, value: Any):
+    async def get_by_col_name(
+            cls, col_name: str, value: Any
+    ) -> Optional[RowProxy]:
         return await db.fetch_one(
             sa.sql.select([
                 cls.model
@@ -36,7 +41,9 @@ class BaseModelInterface:
         )
 
     @classmethod
-    async def get_list(cls, limit: int = 10, offset: int = 0):
+    async def get_list(
+            cls, limit: int = 10, offset: int = 0
+    ) -> List[RowProxy]:
         return await db.fetch_all(
             sa.sql.select([
                 cls.model
@@ -44,7 +51,7 @@ class BaseModelInterface:
         )
 
     @classmethod
-    async def create(cls, **kwargs):
+    async def create(cls, **kwargs: Union[str, int, dict]) -> int:
         return await db.execute(
             sa.insert(
                 cls.model
@@ -52,7 +59,7 @@ class BaseModelInterface:
         )
 
     @classmethod
-    async def update(cls, pk: PK, **kwargs):
+    async def update(cls, pk: PK, **kwargs: Union[str, int, dict]) -> int:
         return await db.execute(
             sa.update(
                 cls.model
@@ -64,7 +71,7 @@ class BaseModelInterface:
         )
 
     @classmethod
-    async def delete(cls, pk: PK):
+    async def delete(cls, pk: PK) -> int:
         return await db.execute(
             sa.delete(
                 cls.model
