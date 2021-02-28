@@ -20,3 +20,6 @@ flake8:
 
 mypy:
 	docker-compose $(COMPOSE_RUN_APP) mypy -m api
+
+tests:
+	docker-compose $(COMPOSE_RUN_APP) /bin/bash -c "mypy tests && pytest"
