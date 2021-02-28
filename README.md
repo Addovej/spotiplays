@@ -1,7 +1,7 @@
 # SpotiPlays - a WEB application for manage [spotifyd](https://github.com/Spotifyd/spotifyd) with multiaccounts.
 
 [![Lint and Tests](https://github.com/Addovej/spotiplays/actions/workflows/lint_and_test.yml/badge.svg)](https://github.com/Addovej/spotiplays/actions/workflows/lint_and_test.yml)
-![Dockerhub build](https://github.com/Addovej/spotiplays/workflows/Dockerhub%20build/badge.svg)
+[![Dockerhub build](https://github.com/Addovej/spotiplays/actions/workflows/dockerhub.yml/badge.svg)](https://github.com/Addovej/spotiplays/actions/workflows/dockerhub.yml)
 
 
 ### Install
