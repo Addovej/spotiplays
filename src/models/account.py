@@ -35,7 +35,7 @@ class Account(BaseModelInterface):
     model = accounts
 
     @classmethod
-    async def create(cls, **kwargs: Union[str, int, dict]) -> int:
+    async def create(cls, **kwargs: Union[str, int, dict]):
         # TODO: Change it to call API for verify.
         verification = {'state': 'OK', 'details': ''}
         return await super().create(
