@@ -1,10 +1,9 @@
-DEFAULT_GOAL := help
 COMPOSE_RUN_APP := run --rm web
+.DEFAULT_GOAL := help
 
-help:
-	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-	| sed -n 's/^\(.*\): \(.*\)## \(.*\)/\1;\3/p' \
-	| column -t  -s ';'
+help:  ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort \
+	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 build:  ## Build application
 	docker-compose build
@@ -21,14 +20,14 @@ generate-secret:  ## Generate and print secret key
 start:  ## Start application
 	docker-compose up -d
 
-isort:  ## Apply isort to project
+isort:  ## Run isort
 	docker-compose $(COMPOSE_RUN_APP) isort .
 
-flake8:  ## Apply flake8 to project
+flake8:  ## Run flake8
 	docker-compose $(COMPOSE_RUN_APP) flake8
 
-mypy:  ## Apply mypy to project
-	docker-compose $(COMPOSE_RUN_APP) mypy -m api
+mypy:  ## Run mypy
+	docker-compose $(COMPOSE_RUN_APP) mypy .
 
-tests:  ## Run project's tests
-	docker-compose $(COMPOSE_RUN_APP) /bin/bash -c "mypy tests && pytest"
+tests:  ## Run tests
+	docker-compose $(COMPOSE_RUN_APP) tests

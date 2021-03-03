@@ -16,7 +16,7 @@ from services.spotifyd import spotifyd
 from utils import generate_spotifyd_conf
 
 logging.config.dictConfig(
-    get_logging(settings.LOGS_DIR)
+    get_logging(str(settings.LOGS_DIR))
 )
 
 params = dict(
@@ -31,12 +31,12 @@ if settings.ENVIRONMENT in ('DEV', 'LOCAL'):
     ))
 else:
     params.update(dict(
-        redoc_url=None,
-        docs_url=None,
-        openapi_url=None
+        redoc_url='',
+        docs_url='',
+        openapi_url=''
     ))
 
-app = FastAPI(**params)
+app = FastAPI(**params)  # type: ignore
 app.add_exception_handler(
     LogHTTPException, log_custom_http_exceptions_handler
 )
@@ -61,7 +61,7 @@ app.mount(
 
 
 @app.get('/')
-async def root():
+async def root() -> HTMLResponse:
     with open(f'{settings.BASE_DIR}/index.html', 'r') as file:
         data = file.read()
 
@@ -69,14 +69,14 @@ async def root():
 
 
 @app.on_event('startup')
-async def startup():
+async def startup() -> None:
     await generate_spotifyd_conf()
     await db.connect()
     await spotifyd.start()
 
 
 @app.on_event('shutdown')
-async def shutdown():
+async def shutdown() -> None:
     await db.disconnect()
     await spotifyd.stop()
 
