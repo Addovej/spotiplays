@@ -12,10 +12,12 @@ RUN apk -U --no-cache add \
     && apk --no-cache update \
     && apk --no-cache upgrade \
     && apk add --no-cache --virtual .build-deps \
+       cargo \
        gcc \
        build-base \
        libffi-dev \
        openssl-dev \
+       rust \
     && pip --no-cache-dir install -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt \
     && apk del --no-cache .build-deps

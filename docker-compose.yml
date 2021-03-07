@@ -13,6 +13,8 @@ services:
       - ./src:/opt/project
     ports:
       - 8000:8010
+#    networks:
+#      - hass
     restart: unless-stopped
     command: uvicorn --port 8010 --host 0.0.0.0 --loop uvloop main:app
 
@@ -25,3 +27,9 @@ services:
     volumes:
       - ./src:/opt/project
     command: alembic upgrade head
+
+# Network for develop HA config
+#networks:
+#  hass:
+#    external:
+#      name: hass

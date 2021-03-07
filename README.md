@@ -30,7 +30,7 @@ Go to http://0.0.0.0:8000 for list of accounts.
 
 Go to http://0.0.0.0:8000/api/docs for view API documentation.
 
-[Here](https://github.com/Spotifyd/spotifyd#configuration-file) full list of spotifyd configuration.
+[Here](https://spotifyd.github.io/spotifyd/config/File.html) full list of spotifyd configuration.
 
 Add your spotify account credentials and apply them. After this it should work. 
 

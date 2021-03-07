@@ -1,3 +1,2 @@
 [flake8]
-exclude = .git,__pycache__,__init__.py,.mypy_cache,.pytest_cache,migrations
-ignore=F811
+exclude = .git,__pycache__,__init__.py,.mypy_cache,.pytest_cache

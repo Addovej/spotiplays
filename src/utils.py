@@ -7,13 +7,17 @@ from conf import settings
 
 
 def decrypt(value: str) -> str:
-    f = Fernet(settings.SECRET_KEY)
+    f = Fernet(settings.SECRET_KEY.encode())
     return f.decrypt(value.encode()).decode()
 
 
 def encrypt(value: str) -> str:
-    f = Fernet(settings.SECRET_KEY)
+    f = Fernet(settings.SECRET_KEY.encode())
     return f.encrypt(value.encode()).decode()
+
+
+def generate_secret() -> str:
+    return Fernet.generate_key().decode()
 
 
 async def generate_spotifyd_conf() -> None:

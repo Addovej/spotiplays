@@ -15,7 +15,7 @@ migrate:  ## Apply migrations
 	docker-compose $(COMPOSE_RUN_APP) alembic upgrade head
 
 generate-secret:  ## Generate and print secret key
-	docker-compose $(COMPOSE_RUN_APP) python -c 'from cryptography.fernet import Fernet;print(Fernet.generate_key())'
+	docker-compose $(COMPOSE_RUN_APP) python -c 'from utils import generate_secret;print(generate_secret())'
 
 start:  ## Start application
 	docker-compose up -d
@@ -31,3 +31,6 @@ mypy:  ## Run mypy
 
 tests:  ## Run tests
 	docker-compose $(COMPOSE_RUN_APP) tests
+
+all_lint:  ## Run all linters
+	docker-compose $(COMPOSE_RUN_APP) /bin/sh -c "isort . && flake8 && mypy ."

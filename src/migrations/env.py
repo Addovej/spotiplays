@@ -8,9 +8,9 @@ from sqlalchemy import engine_from_config, pool
 # Just for imports of app's modules
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-import models
-from conf import settings
-from database import metadata
+import models  # noqa: F401,E402
+from conf import settings  # noqa: E402
+from database import metadata  # noqa: E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -67,7 +67,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, compare_type=True
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True
         )
 
         with context.begin_transaction():
